@@ -1,0 +1,151 @@
+1)Crie um banco de dados para armazenar alunos e cursos de uma universidade.Cada curso pode pertencer a somente uma área:
+
+
+
+
+CREATE TABLE AreasDeEstudo (
+    id_area INT PRIMARY KEY,
+    nome_area VARCHAR(50)
+);
+
+
+CREATE TABLE Cursos (
+    id_curso INT PRIMARY KEY,
+    nome_curso VARCHAR(50),
+    id_area INT,
+    FOREIGN KEY (id_area) REFERENCES AreasDeEstudo(id_area)
+);
+
+
+CREATE TABLE Alunos (
+    id_aluno INT PRIMARY KEY,
+    nome_aluno VARCHAR(50),
+    id_curso INT,
+    FOREIGN KEY (id_curso) REFERENCES Cursos(id_curso)
+);
+
+-- Inserindo dados na tabela AreasDeEstudo
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(1, 'Ciência da Computação');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(2, 'Engenharia Elétrica');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(3, 'Medicina');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(4, 'Administração');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(5, 'Psicologia');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(6, 'Direito');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(7, 'Biologia');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(8, 'Economia');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(9, 'Arquitetura');
+INSERT INTO AreasDeEstudo (id_area, nome_area)VALUES(10, 'Educação Física');
+
+
+3)Utilize Stored Procedures para automatizar a inserção e seleção dos cursos;
+
+-- Stored Procedure para inserir um curso
+DELIMITER //
+CREATE PROCEDURE InserirCurso(
+    IN nomeCurso VARCHAR(50),
+    IN idArea INT
+)
+BEGIN
+    INSERT INTO Cursos (nome_curso, id_area) VALUES (nomeCurso, idArea);
+END //
+DELIMITER ;
+
+-- Stored Procedure para selecionar todos os cursos
+DELIMITER //
+CREATE PROCEDURE SelecionarCursos()
+BEGIN
+    SELECT * FROM Cursos;
+END //
+DELIMITER ;
+
+
+-- Inserindo dados na tabela Cursos
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(101, 'Bacharelado em Ciência da Computação', 1);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(102, 'Engenharia Elétrica Industrial', 2);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(103, 'Medicina Geral', 3);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(104, 'Administração de Empresas', 4);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(105, 'Psicologia Clínica', 5);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(106, 'Direito Penal', 6);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(107, 'Biologia Celular', 7);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(108, 'Economia Aplicada', 8);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(109, 'Arquitetura Sustentável', 9);
+INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(110, 'Educação Física e Saúde', 10);
+
+-- Inserindo dados na tabela Alunos
+ INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES(1001, 'João Silva', 101);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1002, 'Ana Souza', 103);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1003, 'Pedro Oliveira', 104);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1004, 'Mariana Costa', 105);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1005, 'Carlos Santos', 102);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1006, 'Lúcia Ferreira', 106);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1007, 'Rafael Pereira', 107);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES(1008, 'Amanda Gomes', 108);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area)VALUES (1009, 'Lucas Rodrigues', 109);
+ INSERT INTO Cursos (id_curso, nome_curso, id_area) VALUES (1010, 'Beatriz Martins', 110);
+
+4)O aluno possui um e-mail que deve ter seu endereço gerado automaticamente no seguinte formato: nome.sobrenome@dominio.com:
+
+ALTER TABLE Alunos
+ADD COLUMN email VARCHAR(100);
+
+UPDATE Alunos 
+SET email = CONCAT(SUBSTRING_INDEX(nome_aluno, ' ', 1), '.', SUBSTRING_INDEX(nome_aluno, ' ', -1), '@dominio.com')
+
+5)Crie uma rotina que recebe os dados de um novo curso e o insere no banco de dados:
+
+DELIMITER //
+
+CREATE PROCEDURE InserirNovoCurso(
+    IN nomeCurso VARCHAR(50),
+    IN idArea INT
+)
+BEGIN
+    INSERT INTO Cursos (nome_curso, id_area) VALUES (nomeCurso, idArea);
+END //
+
+DELIMITER ;
+
+
+CALL InserirNovoCurso('Engenharia Civil', 6);
+
+6) Crie uma procedure que recebe os dados do aluno e de um curso e faz sua matrícula.Caso o aluno já esteja matriculado em um curso, essa matrícula não pode ser realizada:
+
+DELIMITER //
+
+CREATE PROCEDURE MatricularAlunoEmCurso(
+    IN nomeAluno VARCHAR(50),
+    IN idCurso INT
+)
+BEGIN
+    DECLARE idAlunoExistente INT;
+    
+    SELECT id_aluno INTO idAlunoExistente
+    FROM Alunos
+    WHERE nome_aluno = nomeAluno;
+    
+    IF idAlunoExistente IS NULL THEN
+        INSERT INTO Alunos (nome_aluno, id_curso) VALUES (nomeAluno, idCurso);
+        
+        SET idAlunoExistente = LAST_INSERT_ID();
+        
+        UPDATE Alunos
+        SET email = CONCAT(SUBSTRING_INDEX(nome_aluno, ' ', 1), '.', SUBSTRING_INDEX(nome_aluno, ' ', -1), '@dominio.com')
+        WHERE id_aluno = idAlunoExistente;
+        
+        SELECT 'Aluno matriculado com sucesso' AS Resultado;
+    ELSE
+        SELECT 'Aluno já está matriculado em outro curso' AS Resultado;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+7) Modelo lógico do exercício:
+
+
+
+
+
+
+
