@@ -33,6 +33,12 @@
  ![image](https://github.com/fabianor135/Sistema-Universidade-FUNCTIONS-/assets/84815028/ee013f47-a212-442c-b4b0-c8ef40a89e83)
 
 
+8)Crie o modelo lógico do exercício:
+
+ ![image](https://github.com/fabianor135/Sistema-Universidade-FUNCTIONS-/assets/84815028/51c010f4-7fd5-45d8-9dae-e4c3d8afd8a8)
+
+
+
 
 
 
